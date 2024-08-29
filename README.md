@@ -1,6 +1,7 @@
 # Arch Server Install Script
 
 It's configured to my liking when I set up a new linux server, but some configurations are user prompts to make it more usable. 
+it will install under 3 minutes and be ~200 packages. 
 
 - [x] A minimal install script for a Arch Linux server setup. 
 - [x] It will setup various HDD configuration (EXT4, BTRFS, LUKS)
