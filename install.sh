@@ -501,16 +501,6 @@ fi
 gpu_type=$(lspci | grep -E "VGA|3D|Display")
 
 arch-chroot /mnt /bin/bash <<EOF
-# Ensure /etc exists and create required files
-mkdir -p /etc
-touch /etc/locale.conf
-touch /etc/vconsole.conf
-touch /etc/sudoers
-
-chmod 755 /etc
-chmod 644 /etc/locale.conf
-chmod 644 /etc/vconsole.conf
-chmod 644 /etc/sudoers
 
 echo -ne "
 -------------------------------------------------------------------------
@@ -676,14 +666,6 @@ echo -ne "
 -------------------------------------------------------------------------
 Your system has been updated successfully. All necessary changes have been applied.
 "
-
-LOCALE="en_US.UTF-8"
-KEYMAP="${KEYMAP}"
-
-# Update locale and keymap files in the installed system
-echo "LANG=${LOCALE}" > /etc/locale.conf
-echo "KEYMAP=${KEYMAP}" > /etc/vconsole.conf
-
 # Remove no password sudo rights in the new system
 sed -i 's/^%wheel ALL=(ALL) NOPASSWD: ALL/# %wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
 sed -i 's/^%wheel ALL=(ALL:ALL) NOPASSWD: ALL/# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/' /etc/sudoers
