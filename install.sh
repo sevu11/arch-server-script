@@ -4,6 +4,8 @@
 exec > >(tee -i archsetup.txt)
 exec 2>&1
 
+mkdir -p /tmp # Temp to see if the clean-up section doesn't crash.
+
 echo -ne "
 -------------------------------------------------------------------------
 Automated Arch Linux Installer
@@ -547,6 +549,7 @@ locale-gen
 timedatectl --no-ask-password set-timezone ${TIMEZONE}
 timedatectl --no-ask-password set-ntp 1
 localectl --no-ask-password set-locale LANG="en_US.UTF-8" LC_TIME="en_US.UTF-8"
+
 ln -s /usr/share/zoneinfo/${TIMEZONE} /etc/localtime
 
 # Set keymaps
@@ -703,5 +706,14 @@ sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 
 # Replace in the same state
-cd "$(pwd)" || exit
+#cd "$(pwd)" || exit
+
+bash /arch-server-install/post-install.sh || { echo "Post-install script failed"; exit 1; }
+
+echo -e "
+-------------------------------------------------------------------------
+                    Installation Complete
+-------------------------------------------------------------------------
+Your system has been updated successfully. All necessary changes have been applied.
+"
 EOF
