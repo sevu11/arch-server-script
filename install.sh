@@ -674,4 +674,7 @@ sed -i 's/^%wheel ALL=(ALL:ALL) NOPASSWD: ALL/# %wheel ALL=(ALL:ALL) NOPASSWD: A
 sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 
+cp set_locale.sh /mnt/usr/local/bin/set_locale.sh
+chmod +x /mnt/usr/local/bin/set_locale.sh
+
 EOF
