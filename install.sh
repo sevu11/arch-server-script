@@ -521,21 +521,19 @@ pacman -S --noconfirm --needed pacman-contrib curl
 pacman -S --noconfirm --needed reflector rsync grub arch-install-scripts git ntp wget
 cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
 
-nc=$(grep -c ^processor /proc/cpuinfo)
+nc=\$(grep -c ^processor /proc/cpuinfo)
 
 echo -ne "
 -------------------------------------------------------------------------
-                    You have " $nc" cores. And
-            changing the makeflags for " $nc" cores. Aswell as
-                changing the compression settings.
+                    You have \$nc cores. Changing the makeflags for \$nc cores 
 -------------------------------------------------------------------------
 "
 
-TOTAL_MEM=$(cat /proc/meminfo | grep -i 'memtotal' | grep -o '[[:digit:]]*')
+TOTAL_MEM=\$(grep -i 'memtotal' /proc/meminfo | grep -o '[[:digit:]]*')
 
-if [[  $TOTAL_MEM -gt 8000000 ]]; then
-sed -i "s/#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j$nc\"/g" /etc/makepkg.conf
-sed -i "s/COMPRESSXZ=(xz -c -z -)/COMPRESSXZ=(xz -c -T $nc -z -)/g" /etc/makepkg.conf
+if [[  \$TOTAL_MEM -gt 8000000 ]]; then
+    sed -i "s/#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j\$nc\"/g" /etc/makepkg.conf
+    sed -i "s/COMPRESSXZ=(xz -c -z -)/COMPRESSXZ=(xz -c -T \$nc -z -)/g" /etc/makepkg.conf
 fi
 
 echo -ne "
@@ -559,10 +557,10 @@ localectl --no-ask-password set-keymap ${KEYMAP}
 sed -i 's/^# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
 sed -i 's/^# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/%wheel ALL=(ALL:ALL) NOPASSWD: ALL/' /etc/sudoers
 
-#Add parallel downloading
+# Add parallel downloading
 sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
 
-#Enable multilib
+# Enable multilib
 sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
 pacman -Sy --noconfirm --needed
 
@@ -572,7 +570,7 @@ echo -ne "
 -------------------------------------------------------------------------
 "
 
-# determine processor type and install microcode
+# Determine processor type and install microcode
 if grep -q "GenuineIntel" /proc/cpuinfo; then
     echo "Installing Intel microcode"
     pacman -S --noconfirm --needed intel-ucode
@@ -616,21 +614,16 @@ echo "$USERNAME password set"
 echo $NAME_OF_MACHINE > /etc/hostname
 
 if [[ ${FS} == "luks" ]]; then
-# Making sure to edit mkinitcpio conf if luks is selected
-# add encrypt in mkinitcpio.conf before filesystems in hooks
     sed -i 's/filesystems/encrypt filesystems/g' /etc/mkinitcpio.conf
-# making mkinitcpio with linux kernel
     mkinitcpio -p linux-lts
 fi
 
 echo -ne "
 -------------------------------------------------------------------------
 Automated Arch Linux Installer
--------------------------------------------------------------------------
 
-Final Setup and Configurations
 GRUB EFI Bootloader Install & Check
-
+-------------------------------------------------------------------------
 "
 if [[ -d "/sys/firmware/efi" ]]; then
     grub-install --efi-directory=/boot ${DISK}
@@ -638,7 +631,7 @@ fi
 
 echo -ne "
 -------------------------------------------------------------------------
-               Creating (and Theming) Grub Boot Menu
+               Creating Grub Boot Menu
 -------------------------------------------------------------------------
 "
 
@@ -650,28 +643,8 @@ fi
 # set kernel parameter for adding splash screen
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="[^"]*/& splash /' /etc/default/grub
 
-echo -e "Installing CyberRe Grub theme..."
-THEME_DIR="/boot/grub/themes/CyberRe"
-echo -e "Creating the theme directory..."
-mkdir -p "${THEME_DIR}"
-
-# Clone the theme
-cd "${THEME_DIR}" || exit
-git init
-git remote add -f origin https://github.com/ChrisTitusTech/Top-5-Bootloader-Themes.git
-git config core.sparseCheckout true
-echo "themes/CyberRe/*" >> .git/info/sparse-checkout
-git pull origin main
-mv themes/CyberRe/* .
-rm -rf themes
-rm -rf .git
-
-echo "CyberRe theme has been cloned to ${THEME_DIR}"
 echo -e "Backing up Grub config..."
 cp -an /etc/default/grub /etc/default/grub.bak
-echo -e "Setting the theme as the default..."
-grep "GRUB_THEME=" /etc/default/grub 2>&1 >/dev/null && sed -i '/GRUB_THEME=/d' /etc/default/grub
-echo "GRUB_THEME=\"${THEME_DIR}/theme.txt\"" >> /etc/default/grub
 echo -e "Updating grub..."
 grub-mkconfig -o /boot/grub/grub.cfg
 echo -e "All set!"
@@ -681,36 +654,24 @@ echo -ne "
                     Enabling Essential Services
 -------------------------------------------------------------------------
 "
-
 ntpd -qg
 systemctl enable ntpd.service
-echo "  NTP enabled"
 systemctl disable dhcpcd.service
-echo "  DHCP disabled"
 systemctl stop dhcpcd.service
-echo "  DHCP stopped"
 systemctl enable NetworkManager.service
-echo "  NetworkManager enabled"
 
 echo -ne "
 -------------------------------------------------------------------------
                     Installation Complete
 -------------------------------------------------------------------------
 Your system has been updated successfully. All necessary changes have been applied.
-
 "
 
 LOCALE="en_US.UTF-8"
 
-echo "Setting up locale and keymap in the installed system..."
 
-# Update /mnt/etc/locale.conf
 echo "LANG=${LOCALE}" > /mnt/etc/locale.conf
-echo "Locale has been set to ${LOCALE}."
-
-# Update /mnt/etc/vconsole.conf
 echo "KEYMAP=${KEYMAP}" > /mnt/etc/vconsole.conf
-echo "Keymap has been set to ${KEYMAP}."
 
 # Remove no password sudo rights in the new system
 sed -i 's/^%wheel ALL=(ALL) NOPASSWD: ALL/# %wheel ALL=(ALL) NOPASSWD: ALL/' /mnt/etc/sudoers
@@ -719,3 +680,5 @@ sed -i 's/^%wheel ALL=(ALL:ALL) NOPASSWD: ALL/# %wheel ALL=(ALL:ALL) NOPASSWD: A
 # Add normal sudo rights in the new system
 sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /mnt/etc/sudoers
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /mnt/etc/sudoers
+
+EOF
