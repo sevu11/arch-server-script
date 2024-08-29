@@ -694,43 +694,28 @@ echo "  NetworkManager enabled"
 
 echo -ne "
 -------------------------------------------------------------------------
-                    Cleaning
--------------------------------------------------------------------------
-"
-
-# Remove no password sudo rights
-sed -i 's/^%wheel ALL=(ALL) NOPASSWD: ALL/# %wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
-sed -i 's/^%wheel ALL=(ALL:ALL) NOPASSWD: ALL/# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/' /etc/sudoers
-# Add sudo rights
-sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
-sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
-
-echo -ne "
--------------------------------------------------------------------------
                     Installation Complete
 -------------------------------------------------------------------------
 Your system has been updated successfully. All necessary changes have been applied.
 
 "
 
-# Create the systemd service for post-install script
-printf '[Unit]
-Description=Run post-install script after reboot
-After=network.target
+LOCALE="en_US.UTF-8"
 
-[Service]
-Type=oneshot
-ExecStart=/root/post-install.sh
-RemainAfterExit=true
+echo "Setting up locale and keymap in the installed system..."
 
-[Install]
-WantedBy=multi-user.target
-' > /etc/systemd/system/post-install.service
+# Update /mnt/etc/locale.conf
+echo "LANG=${LOCALE}" > /mnt/etc/locale.conf
+echo "Locale has been set to ${LOCALE}."
 
-# Ensure post-install script is in place and executable
-cp post-install.sh /mnt/root/post-install.sh
-chmod +x /mnt/root/post-install.sh
+# Update /mnt/etc/vconsole.conf
+echo "KEYMAP=${KEYMAP}" > /mnt/etc/vconsole.conf
+echo "Keymap has been set to ${KEYMAP}."
 
-# Enable the systemd service to run after reboot
-systemctl enable post-install.service
-"
+# Remove no password sudo rights in the new system
+sed -i 's/^%wheel ALL=(ALL) NOPASSWD: ALL/# %wheel ALL=(ALL) NOPASSWD: ALL/' /mnt/etc/sudoers
+sed -i 's/^%wheel ALL=(ALL:ALL) NOPASSWD: ALL/# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/' /mnt/etc/sudoers
+
+# Add normal sudo rights in the new system
+sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /mnt/etc/sudoers
+sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /mnt/etc/sudoers
