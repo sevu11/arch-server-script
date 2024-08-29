@@ -23,3 +23,6 @@ See [keymaps](https://github.com/sevu11/arch-server-script/blob/main/keymaps.txt
 ## Credit
 - Orginal script I based this one, was from [Chris Titus](https://github.com/ChrisTitusTech/ArchTitus)
 
+## Known issues
+- Currently, the script doesn't seem to save the correct keymap regardless of user input from the install script. This is a minor issue and can be corrected post-installation (see above).
+
