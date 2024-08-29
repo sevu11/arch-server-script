@@ -16,6 +16,13 @@ chmod +x install.sh
 ./install.sh
 ```
 
+![Install time](https://raw.githubusercontent.com/sevu11/arch-server-script/main/images/install.png)
+*Installation time* 
+
+![Total packages](https://raw.githubusercontent.com/sevu11/arch-server-script/main/images/fetch.png)
+*Default fastfetch*
+
+
 ## Locale Defaults
 
 By default it will keep default locale settings.
