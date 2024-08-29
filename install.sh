@@ -4,7 +4,7 @@
 exec > >(tee -i archsetup.txt)
 exec 2>&1
 
-mkdir -p /tmp # Temp to see if the clean-up section doesn't crash.
+mkdir -p /tmp
 
 echo -ne "
 -------------------------------------------------------------------------
@@ -642,6 +642,7 @@ fi
 
 # Set kernel parameter for adding splash screen
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="[^"]*/& splash /' /etc/default/grub
+sed -i 's/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=0/' /etc/default/grub
 
 echo -e "Backing up Grub config..."
 cp -an /etc/default/grub /etc/default/grub.bak
@@ -673,10 +674,5 @@ sed -i 's/^%wheel ALL=(ALL:ALL) NOPASSWD: ALL/# %wheel ALL=(ALL:ALL) NOPASSWD: A
 # Add normal sudo rights in the new system
 sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
-
-cp ~/arch-install-script/set_locale.sh /mnt/usr/local/bin/set_locale.sh
-chmod +x /mnt/usr/local/bin/set_locale.sh
-cp ~/arch-install-script/.bashrc /mnt/root/.bashrc
-chmod +x /mnt/root/.bashrc
 
 EOF
