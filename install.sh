@@ -708,7 +708,7 @@ sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 # Replace in the same state
 #cd "$(pwd)" || exit
 
-bash /arch-server-install/post-install.sh || { echo "Post-install script failed"; exit 1; }
+bash /root/arch-server-script/post-install.sh || { echo "Post-install script failed"; exit 1; }
 
 echo -e "
 -------------------------------------------------------------------------
