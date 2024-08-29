@@ -501,6 +501,16 @@ fi
 gpu_type=$(lspci | grep -E "VGA|3D|Display")
 
 arch-chroot /mnt /bin/bash <<EOF
+# Ensure /etc exists and create required files
+mkdir -p /etc
+touch /etc/locale.conf
+touch /etc/vconsole.conf
+touch /etc/sudoers
+
+chmod 755 /etc
+chmod 644 /etc/locale.conf
+chmod 644 /etc/vconsole.conf
+chmod 644 /etc/sudoers
 
 echo -ne "
 -------------------------------------------------------------------------
@@ -635,12 +645,12 @@ echo -ne "
 -------------------------------------------------------------------------
 "
 
-# set kernel parameter for decrypting the drive
+# Set kernel parameter for decrypting the drive
 if [[ "${FS}" == "luks" ]]; then
 sed -i "s%GRUB_CMDLINE_LINUX_DEFAULT=\"%GRUB_CMDLINE_LINUX_DEFAULT=\"cryptdevice=UUID=${ENCRYPTED_PARTITION_UUID}:ROOT root=/dev/mapper/ROOT %g" /etc/default/grub
 fi
 
-# set kernel parameter for adding splash screen
+# Set kernel parameter for adding splash screen
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="[^"]*/& splash /' /etc/default/grub
 
 echo -e "Backing up Grub config..."
@@ -668,17 +678,18 @@ Your system has been updated successfully. All necessary changes have been appli
 "
 
 LOCALE="en_US.UTF-8"
+KEYMAP="${KEYMAP}"
 
-
-echo "LANG=${LOCALE}" > /mnt/etc/locale.conf
-echo "KEYMAP=${KEYMAP}" > /mnt/etc/vconsole.conf
+# Update locale and keymap files in the installed system
+echo "LANG=${LOCALE}" > /etc/locale.conf
+echo "KEYMAP=${KEYMAP}" > /etc/vconsole.conf
 
 # Remove no password sudo rights in the new system
-sed -i 's/^%wheel ALL=(ALL) NOPASSWD: ALL/# %wheel ALL=(ALL) NOPASSWD: ALL/' /mnt/etc/sudoers
-sed -i 's/^%wheel ALL=(ALL:ALL) NOPASSWD: ALL/# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/' /mnt/etc/sudoers
+sed -i 's/^%wheel ALL=(ALL) NOPASSWD: ALL/# %wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
+sed -i 's/^%wheel ALL=(ALL:ALL) NOPASSWD: ALL/# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/' /etc/sudoers
 
 # Add normal sudo rights in the new system
-sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /mnt/etc/sudoers
-sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /mnt/etc/sudoers
+sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
+sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 
 EOF
