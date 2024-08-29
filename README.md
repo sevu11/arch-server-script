@@ -6,6 +6,18 @@ it will install under 3 minutes and be ~200 packages.
 - [x] A minimal install script for a Arch Linux server setup. 
 - [x] It will setup various HDD configuration (EXT4, BTRFS, LUKS)
 
+
+## Install instructions
+
+```
+git clone https://github.com/sevu11/arch-server-script
+cd arch-server-script/
+chmod +x install.sh
+./install.sh
+```
+
+## Locale Defaults
+
 By default it will keep default locale settings.
 It's recommended to change these files (after install and rebooted).
 
