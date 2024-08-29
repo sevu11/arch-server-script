@@ -26,3 +26,8 @@ See [keymaps](https://github.com/sevu11/arch-server-script/blob/main/keymaps.txt
 ## Known issues
 - Currently, the script doesn't seem to save the correct keymap regardless of user input from the install script. This is a minor issue and can be corrected post-installation (see above).
 
+## To do
+- [ ] Add a post installation script for dotfiles
+- [ ] Add a post installation script for my personal DWM and Slstatus configs.
+- [ ] Add combine post installation scripts which we'll curl into Linutil from [Chris Titus](https://github.com/ChrisTitusTech/linutil)
+
