@@ -705,15 +705,46 @@ sed -i 's/^%wheel ALL=(ALL:ALL) NOPASSWD: ALL/# %wheel ALL=(ALL:ALL) NOPASSWD: A
 sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 
-# Replace in the same state
-#cd "$(pwd)" || exit
-
-bash /root/arch-server-script/post-install.sh || { echo "Post-install script failed"; exit 1; }
-
-echo -e "
+echo -ne "
 -------------------------------------------------------------------------
                     Installation Complete
 -------------------------------------------------------------------------
 Your system has been updated successfully. All necessary changes have been applied.
+
 "
-EOF
+
+# Create the systemd service for post-install script
+printf '[Unit]
+Description=Run post-install script after reboot
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/root/post-install.sh
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+' > /etc/systemd/system/post-install.service
+
+# Ensure post-install script is in place and executable
+cp /arch-server-install/post-install.sh /root/post-install.sh
+chmod +x /root/post-install.sh
+
+# Enable the systemd service to run after reboot
+systemctl enable post-install.service
+
+echo -e "
+-------------------------------------------------------------------------
+Would you like to reboot the system now? (y/n)
+-------------------------------------------------------------------------
+"
+
+read -r REBOOT_NOW
+
+if [[ "$REBOOT_NOW" == "y" || "$REBOOT_NOW" == "Y" ]]; then
+    echo "Rebooting now..."
+    reboot
+else
+    echo "You can reboot the system later to complete the post-install setup."
+fi

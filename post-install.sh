@@ -20,11 +20,7 @@ else
     echo "KEYMAP=${KEYMAP}" > /etc/vconsole.conf
 fi
 
-# Confirm changes
-echo "Contents of /etc/locale.conf:"
-cat /etc/locale.conf
-
-echo "Contents of /etc/vconsole.conf:"
-cat /etc/vconsole.conf
-
 echo "Post-install script executed successfully."
+
+# Remove the systemd service file after execution
+rm -f /etc/systemd/system/post-install.service
