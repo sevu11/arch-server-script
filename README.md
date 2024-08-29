@@ -6,7 +6,7 @@ It's configured to my liking when I set up a new linux server, but some configur
 - [x] It will setup various HDD configuration (EXT4, BTRFS, LUKS)
 
 By default it will keep default locale settings.
-It's recommended to change these files.
+It's recommended to change these files (after install and rebooted).
 
 **/etc/locale.conf:**
 ```
