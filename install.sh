@@ -523,7 +523,7 @@ pacman -Sy --noconfirm --needed
 
 echo -ne "
 -------------------------------------------------------------------------
-                    Installing Microcode
+                        Installing Microcode
 -------------------------------------------------------------------------
 "
 # determine processor type and install microcode
@@ -559,7 +559,7 @@ fi
 
 echo -ne "
 -------------------------------------------------------------------------
-                    Adding User
+                        Adding User
 -------------------------------------------------------------------------
 "
 groupadd libvirt
@@ -592,7 +592,7 @@ fi
 
 echo -ne "
 -------------------------------------------------------------------------
-               Creating (and Theming) Grub Boot Menu
+                    Creating Grub Boot Menu
 -------------------------------------------------------------------------
 "
 # set kernel parameter for decrypting the drive
@@ -602,12 +602,14 @@ fi
 # set kernel parameter for adding splash screen
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="[^"]*/& splash /' /etc/default/grub
 
-echo "CyberRe theme has been cloned to ${THEME_DIR}"
+# Set GRUB timeout to 0 seconds
+sed -i 's/GRUB_TIMEOUT=.*/GRUB_TIMEOUT=0/' /etc/default/grub
+echo "GRUB timeout set to 0 seconds"
+
 echo -e "Backing up Grub config..."
 cp -an /etc/default/grub /etc/default/grub.bak
 echo -e "Updating grub..."
 grub-mkconfig -o /boot/grub/grub.cfg
-echo -e "All set!"
 
 echo -ne "
 -------------------------------------------------------------------------
@@ -675,7 +677,7 @@ umount /mnt
 
 echo -ne "
 -------------------------------------------------------------------------
-                    Cleaning
+                            Cleaning
 -------------------------------------------------------------------------
 "
 # Remove no password sudo rights
@@ -684,6 +686,7 @@ sed -i 's/^%wheel ALL=(ALL:ALL) NOPASSWD: ALL/# %wheel ALL=(ALL:ALL) NOPASSWD: A
 # Add sudo rights
 sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
+
 echo -ne "
 -------------------------------------------------------------------------
                     Automated Arch Linux Installer
