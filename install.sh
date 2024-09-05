@@ -637,7 +637,7 @@ if ! mountpoint -q /mnt; then
     
     # Mount the correct filesystem based on user selection
     if [[ "${FS}" == "btrfs" ]]; then
-        mount -t btrfs ${partition3} /mnt
+        mount -o subvol=@ ${partition3} /mnt # Specify the subvolume for Btrfs
     elif [[ "${FS}" == "ext4" ]]; then
         mount -t ext4 ${partition3} /mnt
     elif [[ "${FS}" == "luks" ]]; then
@@ -645,8 +645,8 @@ if ! mountpoint -q /mnt; then
     fi
 
     # Create necessary directories
-    mount -t proc /proc /mnt/proc
-    mount -t sysfs /sys /mnt/sys
+    mount -t proc /mnt/proc
+    mount -t sysfs /mnt/sys
     mount --bind /dev /mnt/dev
 fi
 
