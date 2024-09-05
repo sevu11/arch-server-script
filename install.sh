@@ -4,11 +4,9 @@
 exec > >(tee -i archsetup.txt)
 exec 2>&1
 
-mkdir -p /tmp
-
 echo -ne "
 -------------------------------------------------------------------------
-Automated Arch Linux Installer
+                    Automated Arch Linux Installer
 -------------------------------------------------------------------------
 
 Verifying Arch Linux ISO is Booted
@@ -117,8 +115,8 @@ select_option() {
 logo () {
 # This will be shown on every set as user is progressing
 echo -ne "
--------------------------------------------------------------------------
-Please select presetup settings for your system              
+------------------------------------------------------------------------
+            Please select presetup settings for your system              
 ------------------------------------------------------------------------
 "
 }
@@ -166,55 +164,22 @@ timezone () {
     esac
 }
 # @description Set user's keyboard mapping. 
-keymap() {
-    echo -ne "Please select your keyboard layout from this list:\n"
-    options=("us" "by" "ca" "cf" "cz" "de" "dk" "es" "et" "fa" "fi" "fr" "gr" "hu" "il" "it" "lt" "lv" "mk" "nl" "no" "pl" "ro" "ru" "se" "sg" "ua" "uk")
+keymap () {
+    echo -ne "
+    Please select key board layout from this list"
+    # These are default key maps as presented in official arch repo archinstall
+    options=(us by ca cf cz de dk es et fa fi fr gr hu il it lt lv mk nl no pl ro ru se sg ua uk)
+
     select_option "${options[@]}"
+    keymap=${options[$?]}
 
-    selected_layout=${options[$?]}
-    echo -ne "You selected: ${selected_layout}\n"
-
-    declare -A keymap_mapping=(
-        [us]="us"
-        [by]="by"
-        [ca]="ca"
-        [cf]="cf"
-        [cz]="cz"
-        [de]="de"
-        [dk]="dk"
-        [es]="es"
-        [et]="et"
-        [fa]="fa"
-        [fi]="fi"
-        [fr]="fr"
-        [gr]="gr"
-        [hu]="hu"
-        [il]="il"
-        [it]="it"
-        [lt]="lt"
-        [lv]="lv"
-        [mk]="mk"
-        [nl]="nl"
-        [no]="no"
-        [pl]="pl"
-        [ro]="ro"
-        [ru]="ru"
-        [se]="se-lat6"
-        [sg]="sg"
-        [ua]="ua"
-        [uk]="uk"
-    )
-
-    # Use the mapping to get the correct keymap name
-    keymap_file="${keymap_mapping[$selected_layout]}"
-
-    if [[ -z "$keymap_file" ]]; then
-        echo -ne "Selected layout is not supported.\n"
-        return 1
+    # Check if the selected keymap is "se" and set it to "se-lat6" for correct layout.
+    if [[ "$keymap" == "se" ]]; then
+        keymap="se-lat6"
     fi
 
-    echo -ne "Setting keymap to: ${keymap_file}\n"
-    export KEYMAP=$keymap_file
+    echo -ne "Your key boards layout: ${keymap} \n"
+    export KEYMAP=$keymap
 }
 
 # @description Choose whether drive is SSD or not.
@@ -495,7 +460,7 @@ if [[  $TOTAL_MEM -lt 8000000 ]]; then
     mkswap /mnt/opt/swap/swapfile
     swapon /mnt/opt/swap/swapfile
     # The line below is written to /mnt/ but doesn't contain /mnt/, since it's just / for the system itself.
-    echo "/opt/swap/swapfile    none    swap    sw  0   0" >> /mnt/etc/fstab # Add swap to fstab, so it KEEPS working after installation.
+    echo "/opt/swap/swapfile	none	swap	sw	0	0" >> /mnt/etc/fstab # Add swap to fstab, so it KEEPS working after installation.
 fi
 
 gpu_type=$(lspci | grep -E "VGA|3D|Display")
@@ -507,49 +472,41 @@ echo -ne "
                     Network Setup 
 -------------------------------------------------------------------------
 "
-
 pacman -S --noconfirm --needed networkmanager dhclient
 systemctl enable --now NetworkManager
-
 echo -ne "
 -------------------------------------------------------------------------
                     Setting up mirrors for optimal download 
 -------------------------------------------------------------------------
 "
-
 pacman -S --noconfirm --needed pacman-contrib curl
 pacman -S --noconfirm --needed reflector rsync grub arch-install-scripts git ntp wget
 cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
 
-nc=\$(grep -c ^processor /proc/cpuinfo)
-
+nc=$(grep -c ^processor /proc/cpuinfo)
 echo -ne "
 -------------------------------------------------------------------------
-                    You have \$nc cores. Changing the makeflags for \$nc cores 
+                    You have " $nc" cores. And
+			changing the makeflags for " $nc" cores. Aswell as
+				changing the compression settings.
 -------------------------------------------------------------------------
 "
-
-TOTAL_MEM=\$(grep -i 'memtotal' /proc/meminfo | grep -o '[[:digit:]]*')
-
-if [[  \$TOTAL_MEM -gt 8000000 ]]; then
-    sed -i "s/#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j\$nc\"/g" /etc/makepkg.conf
-    sed -i "s/COMPRESSXZ=(xz -c -z -)/COMPRESSXZ=(xz -c -T \$nc -z -)/g" /etc/makepkg.conf
+TOTAL_MEM=$(cat /proc/meminfo | grep -i 'memtotal' | grep -o '[[:digit:]]*')
+if [[  $TOTAL_MEM -gt 8000000 ]]; then
+sed -i "s/#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j$nc\"/g" /etc/makepkg.conf
+sed -i "s/COMPRESSXZ=(xz -c -z -)/COMPRESSXZ=(xz -c -T $nc -z -)/g" /etc/makepkg.conf
 fi
-
 echo -ne "
 -------------------------------------------------------------------------
                     Setup Language to US and set locale  
 -------------------------------------------------------------------------
 "
-
 sed -i 's/^#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
 locale-gen
 timedatectl --no-ask-password set-timezone ${TIMEZONE}
 timedatectl --no-ask-password set-ntp 1
 localectl --no-ask-password set-locale LANG="en_US.UTF-8" LC_TIME="en_US.UTF-8"
-
 ln -s /usr/share/zoneinfo/${TIMEZONE} /etc/localtime
-
 # Set keymaps
 localectl --no-ask-password set-keymap ${KEYMAP}
 
@@ -557,10 +514,10 @@ localectl --no-ask-password set-keymap ${KEYMAP}
 sed -i 's/^# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
 sed -i 's/^# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/%wheel ALL=(ALL:ALL) NOPASSWD: ALL/' /etc/sudoers
 
-# Add parallel downloading
+#Add parallel downloading
 sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
 
-# Enable multilib
+#Enable multilib
 sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
 pacman -Sy --noconfirm --needed
 
@@ -569,8 +526,7 @@ echo -ne "
                     Installing Microcode
 -------------------------------------------------------------------------
 "
-
-# Determine processor type and install microcode
+# determine processor type and install microcode
 if grep -q "GenuineIntel" /proc/cpuinfo; then
     echo "Installing Intel microcode"
     pacman -S --noconfirm --needed intel-ucode
@@ -614,38 +570,60 @@ echo "$USERNAME password set"
 echo $NAME_OF_MACHINE > /etc/hostname
 
 if [[ ${FS} == "luks" ]]; then
+# Making sure to edit mkinitcpio conf if luks is selected
+# add encrypt in mkinitcpio.conf before filesystems in hooks
     sed -i 's/filesystems/encrypt filesystems/g' /etc/mkinitcpio.conf
+# making mkinitcpio with linux kernel
     mkinitcpio -p linux-lts
 fi
 
 echo -ne "
 -------------------------------------------------------------------------
-Automated Arch Linux Installer
-
-GRUB EFI Bootloader Install & Check
+                    Automated Arch Linux Installer
 -------------------------------------------------------------------------
+
+Final Setup and Configurations
+GRUB EFI Bootloader Install & Check
 "
+
 if [[ -d "/sys/firmware/efi" ]]; then
     grub-install --efi-directory=/boot ${DISK}
 fi
 
 echo -ne "
 -------------------------------------------------------------------------
-               Creating Grub Boot Menu
+               Creating (and Theming) Grub Boot Menu
 -------------------------------------------------------------------------
 "
-
-# Set kernel parameter for decrypting the drive
+# set kernel parameter for decrypting the drive
 if [[ "${FS}" == "luks" ]]; then
 sed -i "s%GRUB_CMDLINE_LINUX_DEFAULT=\"%GRUB_CMDLINE_LINUX_DEFAULT=\"cryptdevice=UUID=${ENCRYPTED_PARTITION_UUID}:ROOT root=/dev/mapper/ROOT %g" /etc/default/grub
 fi
-
-# Set kernel parameter for adding splash screen
+# set kernel parameter for adding splash screen
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="[^"]*/& splash /' /etc/default/grub
-sed -i 's/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=0/' /etc/default/grub
 
+echo -e "Installing CyberRe Grub theme..."
+THEME_DIR="/boot/grub/themes/CyberRe"
+echo -e "Creating the theme directory..."
+mkdir -p "${THEME_DIR}"
+
+# Clone the theme
+cd "${THEME_DIR}" || exit
+git init
+git remote add -f origin https://github.com/ChrisTitusTech/Top-5-Bootloader-Themes.git
+git config core.sparseCheckout true
+echo "themes/CyberRe/*" >> .git/info/sparse-checkout
+git pull origin main
+mv themes/CyberRe/* .
+rm -rf themes
+rm -rf .git
+
+echo "CyberRe theme has been cloned to ${THEME_DIR}"
 echo -e "Backing up Grub config..."
 cp -an /etc/default/grub /etc/default/grub.bak
+echo -e "Setting the theme as the default..."
+grep "GRUB_THEME=" /etc/default/grub 2>&1 >/dev/null && sed -i '/GRUB_THEME=/d' /etc/default/grub
+echo "GRUB_THEME=\"${THEME_DIR}/theme.txt\"" >> /etc/default/grub
 echo -e "Updating grub..."
 grub-mkconfig -o /boot/grub/grub.cfg
 echo -e "All set!"
@@ -657,22 +635,39 @@ echo -ne "
 "
 ntpd -qg
 systemctl enable ntpd.service
+echo "  NTP enabled"
 systemctl disable dhcpcd.service
+echo "  DHCP disabled"
 systemctl stop dhcpcd.service
+echo "  DHCP stopped"
 systemctl enable NetworkManager.service
+echo "  NetworkManager enabled"
+
+# @description Edit vconsole.conf and locale.conf for persistence
+echo -ne "
+-------------------------------------------------------------------------
+                    Updating vconsole.conf and locale.conf
+-------------------------------------------------------------------------
+"
+# Update /etc/vconsole.conf
+echo "KEYMAP=${KEYMAP}" > /mnt/etc/vconsole.conf
+
+# Update /etc/locale.conf
+echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
+
+# Ensure the locale is generated
+echo "Generating locales..."
+arch-chroot /mnt locale-gen
 
 echo -ne "
 -------------------------------------------------------------------------
-                    Installation Complete
+                    Cleaning
 -------------------------------------------------------------------------
-Your system has been updated successfully. All necessary changes have been applied.
 "
-# Remove no password sudo rights in the new system
+# Remove no password sudo rights
 sed -i 's/^%wheel ALL=(ALL) NOPASSWD: ALL/# %wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
 sed -i 's/^%wheel ALL=(ALL:ALL) NOPASSWD: ALL/# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/' /etc/sudoers
-
-# Add normal sudo rights in the new system
+# Add sudo rights
 sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
-
 EOF
