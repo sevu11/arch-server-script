@@ -649,6 +649,26 @@ echo -ne "
                     Updating vconsole.conf and locale.conf
 -------------------------------------------------------------------------
 "
+# Ensure /mnt is mounted and necessary directories exist
+if ! mountpoint -q /mnt; then
+    echo "Mounting the root filesystem..."
+    
+    # Mount the correct filesystem based on user selection
+    if [[ "${FS}" == "btrfs" ]]; then
+        mount -t btrfs ${partition3} /mnt
+    elif [[ "${FS}" == "ext4" ]]; then
+        mount -t ext4 ${partition3} /mnt
+    elif [[ "${FS}" == "luks" ]]; then
+        mount -t btrfs /dev/mapper/ROOT /mnt # Adjust if using a different filesystem for LUKS
+    fi
+
+    # Create necessary directories
+    mkdir -p /mnt/{boot,etc,proc,sys,run} 
+    mount -t proc /proc /mnt/proc
+    mount -t sysfs /sys /mnt/sys
+    mount --bind /dev /mnt/dev
+fi
+
 # Update /etc/vconsole.conf
 echo "KEYMAP=${KEYMAP}" > /mnt/etc/vconsole.conf
 
@@ -658,6 +678,12 @@ echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
 # Ensure the locale is generated
 echo "Generating locales..."
 arch-chroot /mnt locale-gen
+
+# Unmount the filesystems
+umount /mnt/dev
+umount /mnt/proc
+umount /mnt/sys
+umount /mnt
 
 echo -ne "
 -------------------------------------------------------------------------
