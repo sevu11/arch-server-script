@@ -602,28 +602,9 @@ fi
 # set kernel parameter for adding splash screen
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="[^"]*/& splash /' /etc/default/grub
 
-echo -e "Installing CyberRe Grub theme..."
-THEME_DIR="/boot/grub/themes/CyberRe"
-echo -e "Creating the theme directory..."
-mkdir -p "${THEME_DIR}"
-
-# Clone the theme
-cd "${THEME_DIR}" || exit
-git init
-git remote add -f origin https://github.com/ChrisTitusTech/Top-5-Bootloader-Themes.git
-git config core.sparseCheckout true
-echo "themes/CyberRe/*" >> .git/info/sparse-checkout
-git pull origin main
-mv themes/CyberRe/* .
-rm -rf themes
-rm -rf .git
-
 echo "CyberRe theme has been cloned to ${THEME_DIR}"
 echo -e "Backing up Grub config..."
 cp -an /etc/default/grub /etc/default/grub.bak
-echo -e "Setting the theme as the default..."
-grep "GRUB_THEME=" /etc/default/grub 2>&1 >/dev/null && sed -i '/GRUB_THEME=/d' /etc/default/grub
-echo "GRUB_THEME=\"${THEME_DIR}/theme.txt\"" >> /etc/default/grub
 echo -e "Updating grub..."
 grub-mkconfig -o /boot/grub/grub.cfg
 echo -e "All set!"
@@ -664,14 +645,20 @@ if ! mountpoint -q /mnt; then
     fi
 
     # Create necessary directories
-    #mkdir -p /mnt/{boot,etc,proc,sys,run} 
     mount -t proc /proc /mnt/proc
     mount -t sysfs /sys /mnt/sys
     mount --bind /dev /mnt/dev
 fi
 
+# Install terminus font
+pacman -S --noconfirm --needed terminus-font
+
+# Set terminus font
+echo "FONT=ter-v18b" >> /mnt/etc/vconsole.conf
+
 # Update /etc/vconsole.conf
 echo "KEYMAP=${KEYMAP}" > /mnt/etc/vconsole.conf
+echo "FONT=ter-v18b" >> /mnt/etc/vconsole.conf
 
 # Update /etc/locale.conf
 echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
