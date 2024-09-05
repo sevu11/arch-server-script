@@ -644,6 +644,7 @@ systemctl enable NetworkManager.service
 echo "  NetworkManager enabled"
 
 # @description Edit vconsole.conf and locale.conf for persistence
+# Sometimes the locale and vconsole.conf files are not updated, so we need to force update them manually.
 echo -ne "
 -------------------------------------------------------------------------
                     Updating vconsole.conf and locale.conf
@@ -663,7 +664,7 @@ if ! mountpoint -q /mnt; then
     fi
 
     # Create necessary directories
-    mkdir -p /mnt/{boot,etc,proc,sys,run} 
+    #mkdir -p /mnt/{boot,etc,proc,sys,run} 
     mount -t proc /proc /mnt/proc
     mount -t sysfs /sys /mnt/sys
     mount --bind /dev /mnt/dev
