@@ -25,13 +25,7 @@ chmod +x install.sh
 
 ## Locale Defaults
 
-By default it will keep default locale settings.
-It's recommended to change these files (after install and rebooted).
-
-**/etc/locale.conf:**
-```
-LANG=en_US.UTF-8
-```
+If you wish to change your keyboard layout (i.e keymap) you can edit the following file:
 
 **/etc/vconsole.conf:**
 ```
@@ -41,12 +35,3 @@ See [keymaps](https://github.com/sevu11/arch-server-script/blob/main/keymaps.txt
 
 ## Credit
 - Orginal script I based this one, was from [Chris Titus](https://github.com/ChrisTitusTech/ArchTitus)
-
-## Known issues
-- Currently, the script doesn't seem to save the correct keymap regardless of user input from the install script. This is a minor issue and can be corrected post-installation (see above).
-
-## To do
-- [ ] Add a post installation script for dotfiles
-- [ ] Add a post installation script for my personal DWM and Slstatus configs.
-- [ ] Add combine post installation scripts which we'll curl into Linutil from [Chris Titus](https://github.com/ChrisTitusTech/linutil)
-
