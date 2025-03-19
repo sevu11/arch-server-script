@@ -16,7 +16,7 @@ install_packages() {
 }
 
 install_extra_packages() {
-    sudo pacman -S feh firefox polybar python-pywal --noconfirm --needed
+    sudo pacman -S feh firefox python-pywal --noconfirm --needed
 }
 
 install_nerd_font() {
@@ -65,9 +65,11 @@ clone_dwm() {
 
 
 build_dwm() {
-    echo "Building and installing DWM, dmenu, and st..."
+    echo "Building and installing DWM..."
+    #echo "Building and installing DWM, dmenu, and st..."
 
-    for app in dwm dmenu st; do
+    for app in dwm; do
+    #for app in dwm dmenu st; do
         app_dir="$HOME/.config/suckless/$app"
         
         if [ -d "$app_dir" ]; then
@@ -138,7 +140,7 @@ update_system
 install_packages
 install_nerd_font
 install_picom
-clone_dwm
+#clone_dwm
 build_dwm
 
 echo "Done! You can now start DWM with the 'startx' command."
