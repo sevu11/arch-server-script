@@ -1,4 +1,4 @@
-# Arch Server Install Script
+# Arch Install Script (Base server)
 
 It's configured to my liking when I set up a new linux server, but some configurations are user prompts to make it more usable. 
 it will install under 3 minutes and be ~200 packages. 
@@ -11,7 +11,7 @@ it will install under 3 minutes and be ~200 packages.
 
 ```
 git clone https://github.com/avaera8775/archinstall
-cd arch-server-script/
+cd archimstall/
 chmod +x install.sh
 ./install.sh
 ```
