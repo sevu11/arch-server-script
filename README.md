@@ -10,7 +10,7 @@ it will install under 3 minutes and be ~200 packages.
 ## Install instructions
 
 ```
-git clone https://github.com/sevu11/arch-server-script
+git clone https://github.com/avaera8775/archinstall
 cd arch-server-script/
 chmod +x install.sh
 ./install.sh
