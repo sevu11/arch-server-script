@@ -11,7 +11,7 @@ it will install under 3 minutes and be ~200 packages.
 
 ```
 git clone https://github.com/avaera8775/archinstall
-cd archimstall/
+cd archinstall/
 chmod +x install.sh
 ./install.sh
 ```
